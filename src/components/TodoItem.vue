@@ -30,6 +30,7 @@ import ContextMenu from "./ContextMenu.vue";
 import EditModal from "./EditModal.vue";
 // eslint-disable-next-line no-unused-vars
 import { TodoItem } from "@/types/todo";
+import request from "@/utils/request";
 
 export default defineComponent({
   components: {
@@ -59,21 +60,21 @@ export default defineComponent({
     };
 
     const onDeleteHandle = () => {
-      const res = window.confirm("确定要删除这个Todo吗？");
+      // const res = window.confirm("确定要删除这个Todo吗？");
+      const res = true;
       if (res) {
-        fetch(`/TODO/todo/${props.data.id}`, { method: "DELETE" })
-          .then((res) => {
-            return res.json();
-          })
-          .then((res) => {
-            if (res.code === 200) {
-              alert("Todo 删除成功");
-              contenxtMenuVisible.value = false;
-              ctx.emit("on-delete", props.data.id);
-            } else {
-              alert(res.message);
-            }
-          });
+        request({
+          url: `/TODO/todo/${props.data.id}`,
+          method: "DELETE",
+        }).then((res) => {
+          if (res.data.code === 200) {
+            // alert("Todo 删除成功");
+            contenxtMenuVisible.value = false;
+            ctx.emit("on-delete", props.data.id);
+          } else {
+            alert(res.data.message);
+          }
+        });
       }
     };
 

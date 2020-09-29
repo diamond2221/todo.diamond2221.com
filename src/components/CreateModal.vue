@@ -46,6 +46,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import Modal from "./Modal.vue";
+import request from '@/utils/request'
 
 export default defineComponent({
   components: {
@@ -72,28 +73,26 @@ export default defineComponent({
       if (!expirTime.value) {
         return alert('请输入Todo的到期时间！')
       }
-      fetch(
-        `/TODO/todo`,
+      request(
         {
+          url: `/TODO/todo`,
           method: "POST",
           headers: {
             "Content-Type": 'application/json; charset=utf-8',
           },
-          body: JSON.stringify({
+          data: {
             name: name.value,
             desc: desc.value,
             expirTime: new Date(expirTime.value).getTime(),
             addUser: 1
-          })
+          }
         }
       ).then(res => {
-        return res.json()
-      }).then(res => {
-        if (res.code === 200) {
+        if (res.data.code === 200) {
           alert('Todo 创建成功')
-          ctx.emit("on-confirm", res.data);
+          ctx.emit("on-confirm", res.data.data);
         } else {
-          alert(res.message)
+          alert(res.data.message)
         }
       })
     };

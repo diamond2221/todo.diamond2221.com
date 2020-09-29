@@ -47,7 +47,8 @@
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from "vue";
 import Modal from "./Modal.vue";
-import { formatNumber } from '@/utils/date'
+import { formatNumber } from "@/utils/date";
+import request from "@/utils/request";
 
 export default defineComponent({
   components: {
@@ -76,37 +77,32 @@ export default defineComponent({
         return alert("请输入Todo的到期时间！");
       }
       const data = {
-          name: name.value,
-          desc: desc.value,
-          expirTime: new Date(expirTime.value).getTime()
-        }
-      fetch(`/TODO/todo/${props.id!}`, {
+        name: name.value,
+        desc: desc.value,
+        expirTime: new Date(expirTime.value).getTime(),
+      };
+      request({
+        url: `/TODO/todo/${props.id!}`,
         method: "PUT",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
         },
-        body: JSON.stringify(data),
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((res) => {
-          if (res.code === 200) {
-            setVisible(false)
-            alert("Todo 修改成功");
-            ctx.emit("on-confirm", data);
-          } else {
-            alert(res.message);
-          }
-        });
+        data: data,
+      }).then((res) => {
+        if (res.data.code === 200) {
+          setVisible(false);
+          alert("Todo 修改成功");
+          ctx.emit("on-confirm", data);
+        } else {
+          alert(res.data.message);
+        }
+      });
     };
 
     const getDetail = () => {
       if (props.visible && props.id) {
-        fetch(`/TODO/todo/${props.id!}`)
-          .then((res) => res.json())
-          .then(({ code, data, message }) => {
-
+        request(`/TODO/todo/${props.id!}`).then(
+          ({ data: { code, data, message } }) => {
             if (code === 200) {
               name.value = data.name;
               desc.value = data.desc;
@@ -117,16 +113,21 @@ export default defineComponent({
                 .replaceAll("/", "-")
                 .split(" ");
               const dateArr = arr[0].split("-");
-              const date = `${dateArr[0]}-${formatNumber(dateArr[1])}-${formatNumber(dateArr[2])}`;
+              const date = `${dateArr[0]}-${formatNumber(
+                dateArr[1]
+              )}-${formatNumber(dateArr[2])}`;
               const hz = arr[1][0];
               const timeArr = arr[1].slice(2).split(":").slice(0, 2);
               const isPm = hz === "下";
-              const time = `${+timeArr[0] + (isPm ? 12 : 0)}:${formatNumber(timeArr[1])}`;
+              const time = `${+timeArr[0] + (isPm ? 12 : 0)}:${formatNumber(
+                timeArr[1]
+              )}`;
               expirTime.value = `${date}T${time}`;
             } else {
               alert(message);
             }
-          });
+          }
+        );
       }
     };
     const visible = computed(() => props.visible);
