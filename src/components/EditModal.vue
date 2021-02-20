@@ -82,7 +82,7 @@ export default defineComponent({
         expirTime: new Date(expirTime.value).getTime(),
       };
       request({
-        url: `/TODO/todo/${props.id!}`,
+        url: `/todo/${props.id!}`,
         method: "PUT",
         headers: {
           "Content-Type": "application/json; charset=utf-8",
@@ -101,7 +101,7 @@ export default defineComponent({
 
     const getDetail = () => {
       if (props.visible && props.id) {
-        request(`/TODO/todo/${props.id!}`).then(
+        request(`/todo/${props.id!}`).then(
           ({ data: { code, data, message } }) => {
             if (code === 200) {
               name.value = data.name;

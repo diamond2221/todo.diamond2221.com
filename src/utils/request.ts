@@ -14,7 +14,7 @@ declare interface Response<T = any> {
   data: T
 }
 
-export const baseURL = process.env.NODE_ENV === 'production' ? 'https://api.diamond2221.com/TODO' : '/'
+export const baseURL = process.env.NODE_ENV === 'production' ? 'https://api.diamond2221.com/TODO' : '/TODO'
 
 class HttpRequest {
   public queue: Array<{ config: AxiosRequestConfig, cancel: Canceler, token: string }> // 请求的url集合

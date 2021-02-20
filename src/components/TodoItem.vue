@@ -64,7 +64,7 @@ export default defineComponent({
       const res = true;
       if (res) {
         request({
-          url: `/TODO/todo/${props.data.id}`,
+          url: `/todo/${props.data.id}`,
           method: "DELETE",
         }).then((res) => {
           if (res.data.code === 200) {

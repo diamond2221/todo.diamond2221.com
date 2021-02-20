@@ -75,7 +75,7 @@ export default defineComponent({
       }
       request(
         {
-          url: `/TODO/todo`,
+          url: `/todo`,
           method: "POST",
           headers: {
             "Content-Type": 'application/json; charset=utf-8',
