@@ -68,6 +68,7 @@ export default defineComponent({
           method: "DELETE",
         }).then((res) => {
           if (res.data.code === 200) {
+            res.data.data
             // alert("Todo 删除成功");
             contenxtMenuVisible.value = false;
             ctx.emit("on-delete", props.data.id);

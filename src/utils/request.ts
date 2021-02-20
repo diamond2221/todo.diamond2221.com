@@ -1,4 +1,5 @@
 import axios, { AxiosResponse, AxiosRequestConfig, Canceler, AxiosInstance, AxiosPromise } from 'axios'
+import { Loading } from './loading'
 import { encrypt } from './utils'
 
 declare type Methods = 'GET' | 'OPTIONS' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'TRACE' | 'CONNECT'
@@ -7,13 +8,13 @@ declare interface Datas {
   [key: string]: any
 }
 
-declare interface Response {
+declare interface Response<T = any> {
   code: number
   message: string
-  data: any
+  data: T
 }
 
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://api.diamond2221.com/TODO' : '/'
+export const baseURL = process.env.NODE_ENV === 'production' ? 'https://api.diamond2221.com/TODO' : '/'
 
 class HttpRequest {
   public queue: Array<{ config: AxiosRequestConfig, cancel: Canceler, token: string }> // 请求的url集合
@@ -58,7 +59,9 @@ class HttpRequest {
 
     if (!this.queue.length) {
       // hide loading
-      document.querySelector<HTMLDivElement>('#loading')!.style.display = 'none'
+      setTimeout(() => {
+        Loading.hide()
+      }, 200);
     }
     return token
   }
@@ -70,7 +73,7 @@ class HttpRequest {
         // 添加全局的loading...
         if (!Object.keys(this.queue).length) {
           // show loading
-          document.querySelector<HTMLDivElement>('#loading')!.style.display = 'block'
+          Loading.show()
         }
         config.cancelToken = new axios.CancelToken((cancel) => {
           if (url) {
@@ -106,10 +109,10 @@ class HttpRequest {
     )
   }
 
-  async request(options: AxiosRequestConfig) {
+  async request<T = any>(options: AxiosRequestConfig) {
     const instance = axios.create()
     await this.interceptors(instance, options.url)
-    return instance(options) as AxiosPromise<Response>
+    return instance(options) as AxiosPromise<Response<T>>
   }
 }
 
@@ -162,7 +165,7 @@ const HTTP = new HttpRequest()
  * 抛出整个项目的api方法
  */
 const Api = (() => {
-  const fun = async (opts: AxiosRequestConfig | string, data = {}, method: Methods = 'GET') => {
+  const fun = async <T = any>(opts: AxiosRequestConfig | string, data = {}, method: Methods = 'GET') => {
     let header = {}
     if (
       typeof opts === 'string' &&
@@ -171,7 +174,7 @@ const Api = (() => {
       // xxx
     }
     const newOpts = conbineOptions(opts, data, method, header)
-    const res = await HTTP.request(newOpts)
+    const res = await HTTP.request<T>(newOpts)
     return res
   }
 

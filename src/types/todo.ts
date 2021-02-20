@@ -11,4 +11,4 @@ export interface TodoItem {
   status: TodoStatus
 }
 
-type TodoStatus = 1 | 2 | 3
+export type TodoStatus = 1 | 2 | 3
