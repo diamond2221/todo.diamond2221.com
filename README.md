@@ -1,5 +1,8 @@
 # todo.diamond2221.com
 
+Vue3.0 + TypeScript 的Todo 项目
+预览地址： https://todo-diamond2221.netlify.app/
+
 ## Project setup
 ```
 npm install
