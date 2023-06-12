@@ -108,7 +108,10 @@ export default defineComponent({
               desc.value = data.desc;
               //创建一个当前日期对象
               let now = new Date(parseInt(data.expirTime));
-              const arr: string[] = [now.toLocaleDateString().replaceAll("/", "-"), now.toLocaleTimeString()]
+              const arr: string[] = [
+                now.toLocaleDateString().replaceAll("/", "-"),
+                now.toLocaleTimeString(),
+              ];
               const dateArr = arr[0].split("-");
               const date = `${dateArr[0]}-${formatNumber(
                 dateArr[1]
@@ -128,11 +131,15 @@ export default defineComponent({
       }
     };
     const visible = computed(() => props.visible);
-    watch(visible, (nv, ov) => {
-      if (nv !== ov && nv && props.id) {
-        getDetail();
-      }
-    });
+    watch(
+      visible,
+      (nv, ov) => {
+        if (nv !== ov && nv && props.id) {
+          getDetail();
+        }
+      },
+      { immediate: true }
+    );
 
     const state = {
       name,

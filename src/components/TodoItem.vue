@@ -15,27 +15,16 @@
     :left="left"
     :top="top"
   ></ContextMenu>
-
-  <EditModal
-    :visible="showModal"
-    :id="data.id"
-    @on-close="showModal = false"
-    @on-confirm="onConfirmHandle"
-  ></EditModal>
 </template>
 
 <script lang="ts">
+import request from "@/utils/request";
 import { defineComponent, reactive, ref } from "vue";
 import ContextMenu from "./ContextMenu.vue";
-import EditModal from "./EditModal.vue";
-// eslint-disable-next-line no-unused-vars
-import { TodoItem } from "@/types/todo";
-import request from "@/utils/request";
 
 export default defineComponent({
   components: {
     ContextMenu,
-    EditModal,
   },
   props: {
     data: {
@@ -56,7 +45,7 @@ export default defineComponent({
     };
 
     const onEditHandle = () => {
-      showModal.value = true;
+      ctx.emit('on-edit', props.data)
     };
 
     const onDeleteHandle = () => {
@@ -79,15 +68,6 @@ export default defineComponent({
       }
     };
 
-    const onConfirmHandle = (
-      data: Pick<TodoItem, "name" | "desc" | "expirTime">
-    ) => {
-      ctx.emit("on-edit", {
-        ...data,
-        id: props.data.id,
-      });
-    };
-
     const state = reactive({
       contenxtMenuVisible,
       todoData: props.data,
@@ -96,7 +76,6 @@ export default defineComponent({
       left,
       onEditHandle,
       showModal,
-      onConfirmHandle,
       onDeleteHandle,
     });
     return state;

@@ -10,7 +10,7 @@
     >
       <ToDoItem
         :data="todoItem"
-        @on-edit="onEditHandle"
+        @on-edit="onTodoEditHandle"
         @on-delete="onDeleteHandle"
       ></ToDoItem>
     </template>
@@ -21,6 +21,14 @@
     @on-close="showModal = false"
     @on-confirm="onConfirmHandle"
   ></CreateModal>
+
+  <EditModal
+    v-if="editData"
+    :visible="showEditModal"
+    :id="editData.id"
+    @on-close="showEditModal = false"
+    @on-confirm="onEditConfirmHandle"
+  ></EditModal>
 </template>
 
 <script lang="ts">
@@ -31,11 +39,13 @@ import ToDoItem from "@/components/TodoItem.vue";
 import CreateModal from "@/components/CreateModal.vue";
 import { fetchTodos } from "@/graphql/todo";
 import { Loading } from "@/utils/loading";
+import EditModal from "@/components/EditModal.vue";
 
 export default defineComponent({
   components: {
     ToDoItem,
     CreateModal,
+    EditModal
   },
   setup() {
     const page = ref(1);
@@ -43,6 +53,8 @@ export default defineComponent({
     const orderType = ref(1 as 1 | 2 | 3);
     const showModal = ref(false);
     const todoListData = ref([] as TodoList);
+    const showEditModal = ref(false);
+    const editData = ref(null as null | TodoItem);
 
     const openCreateModal = () => {
       showModal.value = true;
@@ -53,20 +65,25 @@ export default defineComponent({
       todoListData.value.unshift(res);
     };
 
-    const onEditHandle = (
-      res: Pick<TodoItem, "id" | "name" | "desc" | "expirTime">
+    const onDeleteHandle = (id: number) => {
+      todoListData.value = todoListData.value.filter((v) => v.id !== id);
+    };
+
+    const onTodoEditHandle = (data: TodoItem) => {
+      editData.value = data
+      showEditModal.value = true
+    }
+
+    const onEditConfirmHandle = (
+      data: Pick<TodoItem, "name" | "desc" | "expirTime">
     ) => {
-      const idx = todoListData.value.findIndex((v) => v.id === res.id);
+      const idx = todoListData.value.findIndex((v) => v.id === editData.value?.id);
       if (idx > -1) {
         todoListData.value[idx] = {
           ...todoListData.value[idx],
-          ...res,
+          ...data,
         };
       }
-    };
-
-    const onDeleteHandle = (id: number) => {
-      todoListData.value = todoListData.value.filter((v) => v.id !== id);
     };
 
     const state = reactive({
@@ -77,21 +94,22 @@ export default defineComponent({
       showModal,
       openCreateModal,
       onConfirmHandle,
-      onEditHandle,
       onDeleteHandle,
+      onTodoEditHandle,
+      showEditModal,
+      editData,
+      onEditConfirmHandle
     });
 
     const fetchList = (page: number) => {
-      Loading.show()
-      fetchTodos(page, size.value, orderType.value).then(
-        (res) => {
-          const { data, errors } = res
-          if (!errors) {
-            state.todoListData = [...state.todoListData, ...data.todos.rows];
-          }
-          Loading.hide()
+      Loading.show();
+      fetchTodos(page, size.value, orderType.value).then((res) => {
+        const { data, errors } = res;
+        if (!errors) {
+          state.todoListData = [...state.todoListData, ...data.todos.rows];
         }
-      );
+        Loading.hide();
+      });
     };
     fetchList(1);
 
